@@ -53,7 +53,7 @@ export default class  PhqAuthHelper {
             try {
                 emailInput = await page.waitForSelector(emailAddressSelector);
             } catch (error) {
-                throw new Error(`${error.message}. Are you using the correct authUrl or has the login page been updated?`);
+                throw new Error(`${error.message}. Verify the authUrl and the login page template.`);
             }
 
             await emailInput.type(email);
@@ -64,7 +64,7 @@ export default class  PhqAuthHelper {
             try {
                 passwordInput = await page.waitForSelector(passwordInputSelector);
             } catch (error) {
-                throw new Error(`${error.message}. Are you using the correct authUrl or has the login page been updated?`);
+                throw new Error(`${error.message}. Verify the authUrl and the login page template.`);
             }
 
             await passwordInput.type(password);
@@ -73,13 +73,19 @@ export default class  PhqAuthHelper {
 
             await page.$eval(loginButtonSelector, el => el.click());
 
+            try {
+                await page.waitForNavigation();
+            } catch(error) {
+                throw new Error(`${error.message}. Verify the loginUsername and loginUserPassword.`);
+            }
+
             this._logger.log(`Waiting for getClient call ${getClientUrl}`);
             let firstResponse = null;
 
             try {
                 firstResponse = await page.waitForResponse(getClientUrl);
             } catch(error) {
-                throw new Error(`${error.message}. Are you using the correct getClientUrl? Are you using the correct loginUserName and loginUserPassword?`);
+                throw new Error(`${error.message}. Verify the getClientUrl.`);
             }
 
             if (firstResponse.ok) {
@@ -99,7 +105,7 @@ export default class  PhqAuthHelper {
                 try {
                     await button[0].click();
                 } catch (error) {
-                    throw new Error("No clickable button found for clientName");
+                    throw new Error(`No clickable button found for clientName: ${clientName}`);
                 }
 
                 this._logger.log(`Waiting for page to load`);
